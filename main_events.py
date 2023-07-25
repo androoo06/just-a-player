@@ -23,7 +23,10 @@ def update(root):
 def on_start():
     update_song_display(None, override=True) # load queue elements
     if (len(song_queue) > 0):
-        load_song(song_name = song_queue[0])
+        _split = song_queue[0].split(",position=")
+        song_queue[0] = _split[0]
+        progress = float(_split[-1]) if (len(_split) > 0) else 0
+        load_song(song_name = _split[0], progress=progress)
 
 def color_btn(btn, bool):
     if (bool):
@@ -71,7 +74,7 @@ def update_song_display(event, override=False):
     total_spaces = get_num_spaces(len(song_list))
     for i in range(len(song_list)):
         offset_space = get_num_spaces(i+1)
-        song_display = (" "*(total_spaces - offset_space)) + str(i+1) + "   " + song_list[i] + "\n"
+        song_display = (" "*(total_spaces - offset_space)) + str(i+1) + "   " + (song_list[i].split(",position=")[0]) + "\n"
         open_box.insert("end", song_display)
 
     open_box.config(state="disabled")

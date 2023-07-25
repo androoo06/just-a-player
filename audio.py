@@ -15,7 +15,7 @@ mixer.music.set_endevent(25)
 song_queue = read_file_as_list("data/queue.txt") # for upcoming songs
 recency_stack = read_file_as_list("data/stack.txt") # for previous songs
 
-saved_queue = [] if (settings["queue_looped"] == False) else [recency_stack[len(recency_stack) - (i+1)] for i in range(len(recency_stack))] + [song for song in song_queue] # for looped queues
+saved_queue = [] if (settings["queue_looped"] == False) else [recency_stack[len(recency_stack) - (i+1)].split(",position=")[0] for i in range(len(recency_stack))] + [song.split(",position=")[0] for song in song_queue] # for looped queues
 action_stack = [] # used for stopping bugs with the music_ended event
 
 if ((len(song_queue) == 0) and (len(saved_queue) > 0)):
@@ -67,8 +67,11 @@ def update_images():
 ### audio stuff ###
 
 def set_song_pos(percent=0):
+    current_song["position"] = percent
     length = current_song["length"]
-    mixer.music.set_pos(length * percent)
+    try:
+        mixer.music.set_pos(length * percent)
+    except Exception as e: pass
 
 def change_volume(percent=0.5):
     setting = change_setting("volume", percent)
@@ -168,9 +171,10 @@ def load_song(song_name=None, autoplay=False, progress=0):
 
         current_song["name"] = song_name
         current_song["length"] = MP3(f"songs/{song_name}.mp3").info.length
-        current_song["position"] = 0
+        current_song["position"] = progress
         current_song["played"] = False
 
+        slider.set_pos(progress)
         slider.bind(set_song_pos)
 
         try:
@@ -187,8 +191,8 @@ def load_song(song_name=None, autoplay=False, progress=0):
         update_images()
 
 def play_btn_pressed(event):
-    if ((mixer.music.get_busy() == False) and current_song["position"] == 0):
-        mixer.music.play()
+    if ((mixer.music.get_busy() == False) and current_song["played"] == False):
+        mixer.music.play(start=slider.progress * current_song["length"])
         current_song["played"] = True
     elif (mixer_loaded):
         if (mixer.music.get_busy()):

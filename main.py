@@ -116,6 +116,10 @@ root.after(0, update, root)
 root.mainloop()
 
 # save data on close
+if (len(song_queue) > 0):
+    pos = current_song["position"]
+    song_queue[0] += f",position={pos}"
+
 write_settings()
 write_list_to_file(song_queue, "data/queue.txt")
 write_list_to_file(recency_stack, "data/stack.txt")

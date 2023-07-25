@@ -1,4 +1,4 @@
-from util import *
+from util import open_file, try_number
 
 settings = {}
 

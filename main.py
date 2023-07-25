@@ -6,9 +6,7 @@ from main_events import *
 from audio import *
 
 root = Tk()
-
-# auto-maximize
-root.state("zoomed")
+root.state("zoomed") # auto-maximize
 
 screen_width  = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight() - 80
@@ -38,7 +36,7 @@ sq = Button(bot_bar, font=("Cascadia Mono SemiBold", 24, 'underline'), text="S",
 ls = Button(bot_bar, font=("Cascadia Mono SemiBold", 24, 'underline'), text="L", bg="#131313", bd=0, fg="white", name="loop_queue")
 st = Text(bot_bar, font=("Cascadia Mono SemiBold", 24, 'underline'), bg="#131313", fg="white", bd=0, name="song_text")
 vl = Label(bot_bar, bg="#131313", image=volumeImg)
-qb = Button(bot_bar, font=("Cascadia Mono SemiBold", 24, 'underline'), text="Q", bg="#131313", bd=0, fg="white")
+qb = Button(bot_bar, font=("Cascadia Mono SemiBold", 24, 'underline'), text="Q", bg="#131313", bd=0, fg="white", name="open_queue_btn")
 
 ps = Slider(bot_bar, name="progress_slider_bg").place({"width":height_dim*5, "height":height_dim/2, "x":int(screen_width/2 - (height_dim/2)) - (height_dim*2), "y":height_dim})
 ps.bg.config(bg="#131313")
@@ -46,31 +44,11 @@ ps.trough.place(relheight=0.7, relwidth=1, rely=0.15, relx=0)
 ps.trough.config(bg="#454545")
 ps.trough_progress.config(bg="#eeeeee")
 
-v = Slider(bot_bar).place({"relwidth": 0.2,"height": int(height_dim2 / 2),"relx": 0.8,"y": int(height_dim2 / 4)}).bind(func=change_vol)
+v = Slider(bot_bar).place({"relwidth": 0.2,"height": int(height_dim2 / 2),"relx": 0.8,"y": int(height_dim2 / 4)}).bind(func=change_volume)
 v.bg.config(bg="#131313")
 v.trough.place(relheight=0.7, relwidth=1, rely=0.15, relx=0)
 v.trough.config(bg="#454545")
 v.trough_progress.config(bg="#eeeeee")
-
-#### wrapper functions ###
-
-def queue_press(event):
-    update_song_display(o, pll, "data/queue.txt")
-
-def pl_btn_press(event):
-    update_song_display(o, pll, f"playlists/{event.widget.cget('text')}.txt")
-
-def start_playback_wrapper(event):
-    start_playback(event, playImg=playImg, pauseImg=pauseImg)
-
-def play_song_pressed_wrapper(event):
-    play_song_pressed(playImg, pauseImg)
-
-def rewind_song_wrapper(event):
-    rewind_song(playImg=playImg, pauseImg=pauseImg)
-
-def skip_song_wrapper(event):
-    skip_song(update_song_display)
 
 #### place elements ####
 
@@ -96,27 +74,31 @@ st.place(relwidth=0.33, relx=0, height=int(height_dim2/2), y=int(height_dim2/4))
 
 sq.bind("<Button-1>", btn_status)
 ls.bind("<Button-1>", btn_status)
-qb.bind("<Button-1>", queue_press)
-plb.bind("<Button-1>", start_playback_wrapper)
-p.bind("<Button-1>", play_song_pressed_wrapper)
-r.bind("<Button-1>", rewind_song_wrapper)
-s.bind("<Button-1>", skip_song_wrapper)
+qb.bind("<Button-1>", update_song_display)
+plb.bind("<Button-1>", create_queue)
+p.bind("<Button-1>", play_btn_pressed)
+r.bind("<Button-1>", rewind_song)
+s.bind("<Button-1>", skip_song)
 
 #### on startup ####
 read_settings()
 mixer.music.set_volume(settings["volume"])
-set_slider(ps)
-set_root(root)
+set_data(
+    _slider=ps, 
+    _root=root,
+    _playImg=playImg,
+    _pauseImg=pauseImg
+)
 
 color_btn(sq, settings["playlist_shuffled"]=="True")
 color_btn(ls, settings["queue_looped"]=="True")
 
 for file in os.listdir("playlists"):
     name = file.split(".")[0]
-    btn1 = Button(l, font=("Cascadia Mono SemiBold", 16), background='#1b1b1b', foreground="white", bd=0, text=name, width=10, anchor="w")
+    btn1 = Button(l, font=("Cascadia Mono SemiBold", 16), background='#1b1b1b', foreground="white", bd=0, text=name, width=10, anchor="w", name=name)
     l.window_create("end", window=btn1)
     l.insert("end", "\n")
-    btn1.bind("<Button-1>", pl_btn_press)
+    btn1.bind("<Button-1>", update_song_display)
 l.configure(state="disabled")
 
 top_bar_left.insert("end", "SELECT PLAYLIST")
@@ -128,8 +110,6 @@ v.set_pos(settings["volume"])
 root.title('Just a Player')
 root['bg'] = '#131313'
 
-update_song_display(o, pll, "data/queue.txt")
-
 # main loop
 on_start() # for the audio
 root.after(0, update, root)
@@ -137,5 +117,5 @@ root.mainloop()
 
 # save data on close
 write_settings()
-write_list_to_file(queue, "data/queue.txt")
-write_list_to_file(stack, "data/stack.txt")
+write_list_to_file(song_queue, "data/queue.txt")
+write_list_to_file(recency_stack, "data/stack.txt")

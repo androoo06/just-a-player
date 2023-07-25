@@ -1,7 +1,6 @@
 from util import *
 from settings import change_setting, settings
 from audio import *
-from slider import class_from_bg
 import pygame
 import os
 
@@ -13,9 +12,11 @@ def update(root):
         if event.type == 25:
             music_ended()
 
-    if ((current_song["name"] != None) and (mixer.get_busy() == True)):
+    if (mixer.music.get_busy() == True):
+        _slider = get_slider() 
         add_val = (update_ms/1000) / current_song["length"]
-        slider.set_pos(slider.progress + add_val)
+        _slider.set_pos(_slider.progress + add_val)
+        current_song["position"] = _slider.progress
 
     root.after(update_ms, update, root)
 
@@ -34,10 +35,13 @@ def btn_status(event):
     btn = event.widget
     
     # change in settings
-    setting = "queue_looped" if (btn.cget("text") == "L") else "playlist_shuffled"
+    setting = "queue_looped" if (btn.cget("text") == "L") else None
     new_state = not (settings[setting] == "True")
     change_setting(setting, str(new_state))
     color_btn(btn, new_state)
+
+    if (setting == "queue_looped"):
+        loop_queue(new_state)
 
 def clear_song_display():
     open_box = get_root().nametowidget("display_playlist").nametowidget("o")
@@ -53,7 +57,6 @@ def clear_song_display():
 def update_song_display(event, override=False):
     btn_name = "open_queue_btn" if (override) else str(event.widget).split(".")[-1]
     playlist = "queue" if (btn_name == "open_queue_btn") else f"playlists/{btn_name}.txt"
-    
     song_list = song_queue
     if (playlist == "playlists/$default$.txt"):
         song_list = os.listdir("songs")
@@ -86,3 +89,6 @@ def update_song_display(event, override=False):
     title = "YOUR QUEUE" if (playlist == "queue") else playlist.split("/")[1].split(".")[0]
     set_data(_open_tab=title)
     playlist_label.config(text=title)
+
+def get_fn():
+    return update_song_display

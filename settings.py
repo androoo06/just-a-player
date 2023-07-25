@@ -21,3 +21,7 @@ def change_setting(setting, value):
     settings[setting] = final
     #print("final val for", setting, "is", final)
     return final
+
+### on import
+
+read_settings()

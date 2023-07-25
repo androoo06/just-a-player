@@ -44,7 +44,7 @@ ps.trough.place(relheight=0.7, relwidth=1, rely=0.15, relx=0)
 ps.trough.config(bg="#454545")
 ps.trough_progress.config(bg="#eeeeee")
 
-v = Slider(bot_bar).place({"relwidth": 0.2,"height": int(height_dim2 / 2),"relx": 0.8,"y": int(height_dim2 / 4)}).bind(func=change_volume)
+v = Slider(bot_bar).place({"relwidth": 0.2,"height": int(height_dim2 / 2),"relx": 0.79,"y": int(height_dim2 / 4)}).bind(func=change_volume)
 v.bg.config(bg="#131313")
 v.trough.place(relheight=0.7, relwidth=1, rely=0.15, relx=0)
 v.trough.config(bg="#454545")
@@ -66,39 +66,39 @@ r.place(width=height_dim, height=height_dim, x=int(screen_width/2 - (height_dim/
 s.place(width=height_dim, height=height_dim, x=int(screen_width/2 - (height_dim/2) + height_dim + 15))
 sq.place(width=height_dim, height=height_dim, x=int(screen_width/2 - (height_dim/2) - ((2*height_dim)) - 30))
 ls.place(width=height_dim, height=height_dim, x=int(screen_width/2 - (height_dim/2) + ((2*height_dim)) + 30))
-vl.place(height=int(height_dim2/2), y=int(height_dim2/4), width=int(height_dim2/2), relx=0.76)
+vl.place(height=int(height_dim2/2), y=int(height_dim2/4), width=int(height_dim2/2), relx=0.75)
 qb.place(height=int(height_dim2/2), y=int(height_dim2/4), width=int(height_dim2/2), relx=0.69)
 st.place(relwidth=0.33, relx=0, height=int(height_dim2/2), y=int(height_dim2/4))
 
 #### bind elements ####
 
-sq.bind("<Button-1>", btn_status)
+sq.bind("<Button-1>", shuffle_queue)
 ls.bind("<Button-1>", btn_status)
-qb.bind("<Button-1>", update_song_display)
+qb.bind("<Button-1>", get_fn())
 plb.bind("<Button-1>", create_queue)
 p.bind("<Button-1>", play_btn_pressed)
 r.bind("<Button-1>", rewind_song)
 s.bind("<Button-1>", skip_song)
 
 #### on startup ####
-read_settings()
 mixer.music.set_volume(settings["volume"])
 set_data(
     _slider=ps, 
     _root=root,
     _playImg=playImg,
-    _pauseImg=pauseImg
+    _pauseImg=pauseImg,
+    _update_song_display=get_fn()
 )
 
-color_btn(sq, settings["playlist_shuffled"]=="True")
 color_btn(ls, settings["queue_looped"]=="True")
 
 for file in os.listdir("playlists"):
     name = file.split(".")[0]
+    if (name == ""): continue
     btn1 = Button(l, font=("Cascadia Mono SemiBold", 16), background='#1b1b1b', foreground="white", bd=0, text=name, width=10, anchor="w", name=name)
     l.window_create("end", window=btn1)
     l.insert("end", "\n")
-    btn1.bind("<Button-1>", update_song_display)
+    btn1.bind("<Button-1>", get_fn())
 l.configure(state="disabled")
 
 top_bar_left.insert("end", "SELECT PLAYLIST")

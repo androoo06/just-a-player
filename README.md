@@ -4,6 +4,11 @@ Music player to play mp3 songs on your pc (that have been legally obtained!) in 
 
 This was created as a fun project to familiarize myself with various concepts and frameworks.
 
+
+# The __Application__ folder
+
+This folder is where all the files are compiled. This is the only folder you need on your system to use this application (run the .exe and as long as the folders are in the same directory there shouldn't be any problems). Configuration of all of these files are listed throughout this document. 
+
 ## Data
 
 The data folder contains the 3 main files the application uses to store/cache your data. Mess with these as you wish:
